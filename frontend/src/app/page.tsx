@@ -1,11 +1,18 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 // Define the expected API response structures
 interface CrawlResponse {
@@ -21,39 +28,42 @@ interface ErrorResponse {
 }
 
 export default function Home() {
-  const [url, setUrl] = useState<string>('');
-  const [markdownContent, setMarkdownContent] = useState<string>('');
-  const [chatQuery, setChatQuery] = useState<string>('');
-  const [chatAnswer, setChatAnswer] = useState<string>('');
+  const [url, setUrl] = useState<string>("");
+  const [markdownContent, setMarkdownContent] = useState<string>("");
+  const [chatQuery, setChatQuery] = useState<string>("");
+  const [chatAnswer, setChatAnswer] = useState<string>("");
   const [isLoadingCrawl, setIsLoadingCrawl] = useState<boolean>(false);
   const [isLoadingChat, setIsLoadingChat] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'; // Use env var or default
+  const backendUrl =
+    process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000"; // Use env var or default
 
   const handleCrawl = async () => {
     setIsLoadingCrawl(true);
     setError(null);
-    setMarkdownContent(''); // Clear previous content
-    setChatAnswer(''); // Clear previous answer
+    setMarkdownContent(""); // Clear previous content
+    setChatAnswer(""); // Clear previous answer
     try {
       const response = await fetch(`${backendUrl}/crawl`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ url }),
       });
 
       if (!response.ok) {
         const errorData: ErrorResponse = await response.json();
-        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+        throw new Error(
+          errorData.detail || `HTTP error! status: ${response.status}`
+        );
       }
 
       const data: CrawlResponse = await response.json();
       setMarkdownContent(data.markdown);
     } catch (e: any) {
-      setError(e.message || 'Failed to crawl URL.');
+      setError(e.message || "Failed to crawl URL.");
       console.error(e);
     } finally {
       setIsLoadingCrawl(false);
@@ -62,30 +72,32 @@ export default function Home() {
 
   const handleChat = async () => {
     if (!markdownContent) {
-      setError('Please crawl a URL first to provide context.');
+      setError("Please crawl a URL first to provide context.");
       return;
     }
     setIsLoadingChat(true);
     setError(null);
-    setChatAnswer(''); // Clear previous answer
+    setChatAnswer("");
     try {
       const response = await fetch(`${backendUrl}/chat`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ query: chatQuery, context: markdownContent }),
       });
 
       if (!response.ok) {
         const errorData: ErrorResponse = await response.json();
-        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+        throw new Error(
+          errorData.detail || `HTTP error! status: ${response.status}`
+        );
       }
 
       const data: ChatResponse = await response.json();
       setChatAnswer(data.answer);
     } catch (e: any) {
-      setError(e.message || 'Failed to get chat response.');
+      setError(e.message || "Failed to get chat response.");
       console.error(e);
     } finally {
       setIsLoadingChat(false);
@@ -100,7 +112,9 @@ export default function Home() {
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle>1. Crawl a Web Page</CardTitle>
-          <CardDescription>Enter the URL of the page you want to chat with.</CardDescription>
+          <CardDescription>
+            Enter the URL of the page you want to chat with.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           <div className="space-y-1">
@@ -117,22 +131,22 @@ export default function Home() {
         </CardContent>
         <CardFooter>
           <Button onClick={handleCrawl} disabled={isLoadingCrawl || !url}>
-            {isLoadingCrawl ? 'Crawling...' : 'Crawl Page'}
+            {isLoadingCrawl ? "Crawling..." : "Crawl Page"}
           </Button>
         </CardFooter>
       </Card>
 
       {/* Display Error */}
-       {error && (
+      {error && (
         <Card className="w-full max-w-2xl border-destructive">
-           <CardHeader>
-             <CardTitle className="text-destructive">Error</CardTitle>
-           </CardHeader>
-           <CardContent>
+          <CardHeader>
+            <CardTitle className="text-destructive">Error</CardTitle>
+          </CardHeader>
+          <CardContent>
             <p className="text-sm text-destructive-foreground">{error}</p>
-           </CardContent>
-         </Card>
-       )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Crawled Content Display */}
       {markdownContent && (
@@ -155,7 +169,9 @@ export default function Home() {
       <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle>2. Chat with the Content</CardTitle>
-          <CardDescription>Ask a question based on the crawled content above.</CardDescription>
+          <CardDescription>
+            Ask a question based on the crawled content above.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           <div className="space-y-1">
@@ -170,23 +186,26 @@ export default function Home() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button onClick={handleChat} disabled={!markdownContent || isLoadingChat || !chatQuery}>
-            {isLoadingChat ? 'Thinking...' : 'Ask Question'}
+          <Button
+            onClick={handleChat}
+            disabled={!markdownContent || isLoadingChat || !chatQuery}
+          >
+            {isLoadingChat ? "Thinking..." : "Ask Question"}
           </Button>
         </CardFooter>
       </Card>
 
       {/* Chat Answer Display */}
       {chatAnswer && (
-         <Card className="w-full max-w-2xl">
-           <CardHeader>
-             <CardTitle>Answer</CardTitle>
-           </CardHeader>
-           <CardContent>
-             <p className="text-sm">{chatAnswer}</p>
-           </CardContent>
-         </Card>
-       )}
+        <Card className="w-full max-w-2xl">
+          <CardHeader>
+            <CardTitle>Answer</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm">{chatAnswer}</p>
+          </CardContent>
+        </Card>
+      )}
     </main>
   );
 }
